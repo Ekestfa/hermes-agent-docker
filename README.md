@@ -5,7 +5,7 @@
 docker compose up -d gateway dashboard
 
 # Yeni bir terminalde interaktif setup
-docker compose run --rm hermes-setup
+docker compose run --rm setup
 ```
 
 ## MCP Konfigürasyonu
