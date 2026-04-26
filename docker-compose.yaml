@@ -4,17 +4,12 @@ services:
   setup:
     image: nousresearch/hermes-agent:latest
     container_name: hermes-setup
-    restart: unless-stopped
     command: setup
     volumes:
       - C:\EKE\MySync\hermes-rag-setup:/opt/data
     networks:
       - rag_net
     # Uncomment to forward specific env vars instead of using .env file:
-    environment:
-    #   - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-    #   - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     stdin_open: true
     tty: true  # Interactive komut için gerekli
   
@@ -27,10 +22,13 @@ services:
       - "8642:8642"
     volumes:
       - C:\EKE\MySync\hermes-rag-setup:/opt/data
+    environment:
+    #   - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    #   - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_ALLOWED_USERS=${TELEGRAM_ALLOWED_USERS}
     networks:
       - rag_net
-    depends_on:
-      - setup
     # Uncomment to forward specific env vars instead of using .env file:
     deploy:
       resources:
@@ -48,11 +46,11 @@ services:
     volumes:
       - C:\EKE\MySync\hermes-rag-setup:/opt/data
     environment:
-      - GATEWAY_HEALTH_URL=http://0.0.0.0:8642
+      - GATEWAY_HEALTH_URL=http://hermes-gateway:8642/health
     networks:
       - rag_net
     depends_on:
-      - setup
+      - gateway
     deploy:
       resources:
         limits:
