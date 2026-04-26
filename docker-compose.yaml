@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # ──────────────────────────────────────────────────────────
+  # Hermes Agent Gateway (Ana Servis)
+  # ──────────────────────────────────────────────────────────
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-agent
+    restart: unless-stopped
+    command: gateway run
+    networks:
+      - rag_net
+      - hermes-net
+    ports:
+      - "8642:8642"        # Gateway API
+      - "9119:9119"        # Dashboard (Web Terminal)
+    volumes:
+      - C:\EKE\MySync\hermes:/opt/data  # Kalıcı bellek, skills, config
+    environment:
+      - GATEWAY_HEALTH_URL=http://hermes:8642
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: "4.0"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8642/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # Redis (Bellek optimizasyonu)
+  # ──────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: hermes-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    networks:
+      - hermes-net
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 3
+
+networks:
+  hermes-net:
+    driver: bridge
+  rag_net:
+    driver: bridge
+
+volumes:
+  redis_data:
