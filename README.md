@@ -1,11 +1,21 @@
 # 🚀 Hermes Agent Docker Kurulum Guideline
 
 ```bash
-# Gateway ve dashboard'ı sürekli çalışır hale getir
+# 1. Eski container'ları temizle
+docker compose down
+
+# 2. Tek seferlik setup (interactive)
+docker compose run --rm setup
+
+# Setup wizard'ı tamamla (LLM, API key, Telegram vs.)
+
+# 3. Gateway ve dashboard'ı başlat
 docker compose up -d gateway dashboard
 
-# Yeni bir terminalde interaktif setup
-docker compose run --rm setup
+# 4. Test
+curl http://localhost:8642/health
+curl http://localhost:9119/api/status
+http://localhost:9119
 ```
 
 ## MCP Konfigürasyonu
